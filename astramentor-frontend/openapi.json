@@ -1,0 +1,454 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "AstraMentor API",
+    "version": "1.0.0",
+    "description": "API for AstraMentor learning platform"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8000",
+      "description": "Development server"
+    }
+  ],
+  "paths": {
+    "/api/v1/ask": {
+      "post": {
+        "summary": "Ask a question to AI agents",
+        "operationId": "askQuestion",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AskQuestionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "SSE stream URL",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AskQuestionResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/repo/upload": {
+      "post": {
+        "summary": "Upload repository for analysis",
+        "operationId": "uploadRepo",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Repository uploaded successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UploadRepoResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/repo/{repoId}/status": {
+      "get": {
+        "summary": "Get repository indexing status",
+        "operationId": "getRepoStatus",
+        "parameters": [
+          {
+            "name": "repoId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Repository status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RepoStatus"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/graph/{repoId}/summary": {
+      "get": {
+        "summary": "Get knowledge graph data",
+        "operationId": "getGraphData",
+        "parameters": [
+          {
+            "name": "repoId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Graph data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GraphData"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/verify": {
+      "post": {
+        "summary": "Verify code with tests",
+        "operationId": "verifyCode",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyCodeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Verification results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerifyCodeResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/sessions": {
+      "get": {
+        "summary": "Get user sessions",
+        "operationId": "getSessions",
+        "responses": {
+          "200": {
+            "description": "List of sessions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Session"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/repositories": {
+      "get": {
+        "summary": "Get user repositories",
+        "operationId": "getRepositories",
+        "responses": {
+          "200": {
+            "description": "List of repositories",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Repository"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AskQuestionRequest": {
+        "type": "object",
+        "required": ["question", "sessionId"],
+        "properties": {
+          "question": {
+            "type": "string"
+          },
+          "sessionId": {
+            "type": "string"
+          },
+          "repoId": {
+            "type": "string"
+          },
+          "socraticMode": {
+            "type": "boolean"
+          },
+          "skillLevel": {
+            "type": "string",
+            "enum": ["beginner", "intermediate", "advanced"]
+          }
+        }
+      },
+      "AskQuestionResponse": {
+        "type": "object",
+        "properties": {
+          "streamUrl": {
+            "type": "string"
+          },
+          "messageId": {
+            "type": "string"
+          }
+        }
+      },
+      "UploadRepoResponse": {
+        "type": "object",
+        "properties": {
+          "repoId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          }
+        }
+      },
+      "RepoStatus": {
+        "type": "object",
+        "properties": {
+          "repoId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["pending", "indexing", "completed", "failed"]
+          },
+          "progress": {
+            "type": "number"
+          },
+          "currentFile": {
+            "type": "string"
+          },
+          "fileCount": {
+            "type": "number"
+          },
+          "totalSize": {
+            "type": "number"
+          },
+          "lastIndexed": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "GraphData": {
+        "type": "object",
+        "properties": {
+          "nodes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GraphNode"
+            }
+          },
+          "edges": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GraphEdge"
+            }
+          }
+        }
+      },
+      "GraphNode": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["file", "class", "function"]
+          },
+          "label": {
+            "type": "string"
+          },
+          "filePath": {
+            "type": "string"
+          },
+          "lineNumber": {
+            "type": "number"
+          }
+        }
+      },
+      "GraphEdge": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string"
+          },
+          "target": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["imports", "calls", "extends", "implements"]
+          }
+        }
+      },
+      "VerifyCodeRequest": {
+        "type": "object",
+        "required": ["code", "language"],
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "language": {
+            "type": "string"
+          },
+          "repoId": {
+            "type": "string"
+          }
+        }
+      },
+      "VerifyCodeResponse": {
+        "type": "object",
+        "properties": {
+          "results": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TestResult"
+            }
+          },
+          "summary": {
+            "$ref": "#/components/schemas/TestSummary"
+          }
+        }
+      },
+      "TestResult": {
+        "type": "object",
+        "properties": {
+          "suite": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["passed", "failed", "skipped"]
+          },
+          "duration": {
+            "type": "number"
+          },
+          "error": {
+            "type": "string"
+          },
+          "stackTrace": {
+            "type": "string"
+          }
+        }
+      },
+      "TestSummary": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "number"
+          },
+          "passed": {
+            "type": "number"
+          },
+          "failed": {
+            "type": "number"
+          },
+          "skipped": {
+            "type": "number"
+          },
+          "coverage": {
+            "type": "number"
+          }
+        }
+      },
+      "Session": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "lastMessage": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "repoId": {
+            "type": "string"
+          }
+        }
+      },
+      "Repository": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "fileCount": {
+            "type": "number"
+          },
+          "totalSize": {
+            "type": "number"
+          },
+          "lastIndexed": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    }
+  }
+}

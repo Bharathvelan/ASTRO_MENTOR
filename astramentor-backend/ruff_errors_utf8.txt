@@ -1,0 +1,14 @@
+﻿F841 Local variable `user_id` is assigned to but never used
+  --> src\api\routes\sessions.py:65:5
+   |
+63 |     Get full history of a specific chat session.
+64 |     """
+65 |     user_id = current_user.get("user_id", "unknown")
+   |     ^^^^^^^
+66 |     
+67 |     try:
+   |
+help: Remove assignment to unused variable `user_id`
+
+Found 1 error.
+No fixes available (1 hidden fix can be enabled with the `--unsafe-fixes` option).
