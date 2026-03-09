@@ -1,0 +1,13 @@
+{
+  "executionEnvironments": [
+    {
+      "root": "astramentor-backend",
+      "venvPath": "astramentor-backend",
+      "venv": "venv",
+      "extraPaths": [
+        "src"
+      ]
+    }
+  ],
+  "typeCheckingMode": "basic"
+}
